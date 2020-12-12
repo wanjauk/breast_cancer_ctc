@@ -1,2 +1,3 @@
 data/raw/*.fastq*
 data/raw/lang_raw
+.Rproj.user

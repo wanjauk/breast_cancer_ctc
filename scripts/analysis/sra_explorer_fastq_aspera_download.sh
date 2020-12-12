@@ -2,7 +2,7 @@
 # script generated using https://sra-explorer.info/# (Accession number: SRP135702) 
 
 # change directory to output directory.
-cd ../../data/raw/
+cd /data/kwanjau/lang
 
 ascp -QT -l 300m -P33001 -i $HOME/.aspera/connect/etc/asperaweb_id_dsa.openssh era-fasp@fasp.sra.ebi.ac.uk:vol1/fastq/SRR683/004/SRR6835874/SRR6835874_1.fastq.gz .
 ascp -QT -l 300m -P33001 -i $HOME/.aspera/connect/etc/asperaweb_id_dsa.openssh era-fasp@fasp.sra.ebi.ac.uk:vol1/fastq/SRR683/004/SRR6835874/SRR6835874_2.fastq.gz .
