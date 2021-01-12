@@ -3,18 +3,20 @@
 #Script to align reads to the indexed genome using HISAT2
 #
 
+# load the samtools module
+module load samtools/1.9
+
 #USAGE:
 # ./reads-alignment.sh \
-# ../../data/raw/savage \
+# /data/kwanjau_shared/lang_data \
 # ../../data/scratch/indexed_genome \
-# ../../data/scratch/reads-alignment-output/savage \
-# ../../data/raw/telleria/SRR965341_1.fastq \
-# ../../data/raw/telleria/SRR965341_2.fastq \
-# ../../data/scratch/reads-alignment-output/telleria
+# /data/kwanjau_shared/scratch/reads-alignment-output \
+# /data/kwanjau_shared/scratch/bam-output
+
 
 # create alignment output directory
-mkdir -p ../../data/scratch/reads-alignment-output/savage
-mkdir -p ../../data/scratch/reads-alignment-output/telleria
+mkdir -p /data/kwanjau_shared/scratch/reads-alignment-output
+mkdir -p /data/kwanjau_shared/scratch/bam-output
 
 # Fastq directory
 FASTQ_DIR=$1
@@ -25,33 +27,19 @@ INDEX_DIR=$2
 # alignment output directory
 ALIGN_OUT=$3
 
-# telleria paired-end reads
-READ1=$4
-READ2=$5
-TELLERIA_OUT=$6
+# bam file output
+BAM_OUT=$4
 
-for fastq in ${FASTQ_DIR}/*.fastq; do
-    fqname=$(basename "$fastq" .fastq)
-
-		hisat2 \
-		 -x ${INDEX_DIR}/bru-mor_genome_index_hisat2 \
-		 -U ${fastq} \
-		 -S ${ALIGN_OUT}/${fqname}.sam \
-		 -p 6 \
-		--summary-file ${ALIGN_OUT}/${fqname}.txt \
-		--new-summary
-done
-
-
-# Process paired-end data (Telleria's study)
-telleria_fastq_name=$(basename "$READ1" _1.fastq)
+for fastq in `ls -1 ${FASTQ_DIR}/*_1.fastq.gz | sed 's/_1.fastq.gz//'` ; do
+fqname=$(basename "$fastq" .fastq)
 
 hisat2 \
-		 -x ${INDEX_DIR}/bru-mor_genome_index_hisat2 \
-		 -1 ${READ1} \
-         -2 ${READ2} \
-		 -S ${TELLERIA_OUT}/${telleria_fastq_name}.sam \
-		 -p 6 \
-		--summary-file ${TELLERIA_OUT}/${telleria_fastq_name}.txt \
-		--new-summary
-
+		 -x ${INDEX_DIR}/GCF_000001405.33_GRCh38.p7_index_hisat2 \
+		 -1 ${fastq}*_1.fastq.gz \
+     -2 ${fastq}*_2.fastq.gz \
+		 -p 16 \
+		--summary-file ${ALIGN_OUT}/${fqname}.txt \
+		--new-summary | \
+		samtools sort -@ 16 -o ${BAM_OUT}/${fqname}.sorted.bam
+		
+done

@@ -1,0 +1,131 @@
+---
+title: "Breast Cancer Circulating Tumor Cells Analysis"
+author: "Kennedy Mwangi"
+date: "January 12, 2021"
+output:
+  pdf_document: default
+  html_document: default
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r include=FALSE, eval=FALSE}
+library("knitr")
+opts_chunk$set(echo = TRUE, 
+                      fig.pos = 'h', 
+                      fig.align = 'center', 
+                      fig.show='hold')
+
+# load the samples metadata while knitting document
+samples.metadata <- readRDS(file = here::here("data","raw","samples.metadata.RDS"))
+
+# include figs during knitting?
+CONFIG <- list(include_fig = FALSE)
+```
+## Introduction
+This document contains the workflow used in the analysis of Breast Cancer Circulating Tumor Cells (CTCs) analysis. It contains code used in each step of the analysis. The code and output files are archived at https://github.com/wanjauk/breast_cancer_ctc
+
+### Setting up R for the analysis
+
+```{r, code = readLines(here::here("scripts","analysis","libraries.R")), eval=FALSE, echo=FALSE}
+
+```
+
+```{r, code = readLines(here::here("scripts","analysis","settings.R")), eval=FALSE, echo=FALSE}
+
+```
+
+## Data acquisition
+Data used in this study is obtained from European Nucleotide Archive under accession number SRP135702.
+
+First, metadata for the data is obtained from EBI as follows:
+
+```{r, code = readLines(here::here("scripts","analysis","get-fastq-files-urls.R")), eval=FALSE}
+
+```
+
+Prepare the samples metadata.
+```{r, code = readLines(here::here("scripts","analysis","prepare-samples-metadata.R")), eval=FALSE}
+
+```
+
+```{r, eval=FALSE, echo=TRUE}
+# print out the sample metadata table
+samples.metadata
+```
+
+
+Next, RNASeq data is downloaded from EBI database's FTP site. Some of the downstream tools require that FASTQ files that were downloaded in zipped form are unzipped.
+
+```{bash, code = readLines(here::here("scripts","analysis","download-fastq-files.sh")), eval=FALSE}
+
+```
+
+## Downloading Human genome and annotation files
+
+Genomes are obtained from their respective databases before alignment.
+
+```{bash, code = readLines(here::here("scripts","analysis","download-genome-and-annotation-file.sh")), eval=FALSE}
+
+```
+
+## Data quality assessment
+After downloading the RNASeq data, its quality is checked through the FASTQC tool whose output is a report in HTML format.
+
+```{bash, code = readLines(here::here("scripts","analysis","generate-fastqc-reports.sh")), eval=FALSE}
+
+```
+
+### Aligning the reads to the genome (Read Mapping)
+
+Alignment of the reads to the genome. The output is BAM files.
+
+
+```{bash, code = readLines(here::here("scripts","analysis","reads-alignment.sh")), eval=FALSE}
+
+```
+
+
+## Assessing the strandedness of the reads
+Before this quality control can be performed, we need to verify whether the reads are stranded or not as this is a required parameter for HTSeq tool later in the analysis. This can be done using RSeQC package - An RNA-seq Quality Control Package. `infer_experiment.py` module is used in this case. RSeQC documentation and tutorial can be found [here](http://rseqc.sourceforge.net/).  
+
+First we convert the Human genome annotation GTF file into `bed` format required by RSeQC package. Then we use `infer_experiment.py` to verify strandedness using a few samples.
+
+
+```{bash, code = readLines(here::here("scripts","analysis","check-reads-strandedness.sh")), eval=FALSE}
+
+```
+
+## Reads quantification
+
+HTSeq tool is used to count reads that aligned to the Human genome. The output is a text file for each sample that contains the number of reads that were counted for each gene.
+
+```{bash, code = readLines(here::here("scripts","analysis","reads-quantification.sh")), eval=FALSE}
+
+```
+
+
+## Generating MultiQC report
+```{bash, code = readLines(here::here("scripts","analysis","generate-multiqc-reports.sh")), eval=FALSE}
+
+```
+
+
+## Analysis in R
+
+### Importing samples count data into R
+
+For further analysis, samples read counts are read into R. To read the sample counts data into R using the script below, simply type `source(here::here("scripts","analysis","import-read-counts-into-r.R")` on the R console and hit enter.
+
+```{r, code = readLines(here::here("scripts","analysis","import-read-counts-into-r.R")), eval=FALSE}
+
+```
+
+
+### Sample quality check
+
+The quality of the samples is checked before further analysis to check for outlier and batch effects.
+
+```{r, code = readLines(here::here("scripts","analysis","sample-preprocessing-and-quality-check.R")), eval=FALSE}
+
+```

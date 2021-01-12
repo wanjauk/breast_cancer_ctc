@@ -3,3 +3,4 @@ data/raw/lang_raw
 .Rproj.user
 .Rhistory
 data/scratch
+results/figures/fastqc_reports

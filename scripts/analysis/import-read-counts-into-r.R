@@ -8,8 +8,7 @@
 library(tibble)
 
 # # where are we?
-cntdir <- here::here("data", "intermediate", "tbrucei_read_counts_mRNA-only",
-                    "savage-telleria_tbrucei_read_counts_mRNA-only")
+cntdir <- here::here("data", "intermediate", "read_counts")
 pat <- ".counts.txt"
 hisat2.all <- list.files(path = cntdir,
                          pattern = pat,
@@ -32,37 +31,37 @@ for (i in 1:length(myfiles) ) {
 }
 
 # merge all elements based on first ID columns
-tbrucei_reads_count_raw <- DT[[myfiles[1]]]
+reads_count <- DT[[myfiles[1]]]
 
 # inspect
-#head(tbrucei_reads_count_raw)
+#head(reads_count)
 
 # we now add each other table with the ID column as key
 for (i in 2:length(myfiles)) {
   y <- DT[[myfiles[i]]]
-  z <- merge(tbrucei_reads_count_raw, y, by = c("ID"))
-  tbrucei_reads_count_raw <- z
+  z <- merge(reads_count, y, by = c("ID"))
+  reads_count <- z
 }
 
 # ID column becomes rownames
-rownames(tbrucei_reads_count_raw) <- tbrucei_reads_count_raw$ID
-tbrucei_reads_count_raw <- tbrucei_reads_count_raw[,-1]
+rownames(reads_count) <- reads_count$ID
+reads_count <- reads_count[,-1]
 
 ## add total counts per sample
-tbrucei_reads_count_raw <- rbind(tbrucei_reads_count_raw, 
-                                 tot.counts=colSums(tbrucei_reads_count_raw))
+reads_count <- rbind(reads_count, 
+                                 tot.counts=colSums(reads_count))
 
 # inspect and look at the top row names!
-#head(tbrucei_reads_count_raw)
+#head(reads_count)
 
-#tail(tbrucei_reads_count_raw)
+#tail(reads_count)
 
 ####################################
 # take summary rows to a new table
 # ( not starting with Tb and tmp with invert=TRUE )
 
 # transpose table for readability
-reads_count_summary <- tbrucei_reads_count_raw[grep("^Tb|^tmp", rownames(tbrucei_reads_count_raw), 
+reads_count_summary <- reads_count[grep("^Tb|^tmp", rownames(reads_count), 
                                                     perl=TRUE, invert=TRUE), ]
 
 # review
@@ -73,23 +72,23 @@ t(reads_count_summary)
 
 # write summary to file
 write.csv(reads_count_summary, 
-          file = here::here("data", "intermediate","tbrucei_reads_count_summary.csv"), 
+          file = here::here("data", "intermediate","reads_count_summary.csv"), 
           row.names = FALSE)
 
 ####################################
 # take all data rows to a new table
-reads_count <- tbrucei_reads_count_raw[grep("^Tb|^tmp", rownames(tbrucei_reads_count_raw), perl=TRUE, invert=FALSE), ]
+reads_count <- reads_count[grep("^Tb|^tmp", rownames(reads_count), perl=TRUE, invert=FALSE), ]
 
 # inspect final merged table
 #head(reads_count, 3)
 
 # write data to files
-saveRDS(reads_count, file = here::here("data", "intermediate", "tbrucei_reads_count.RDS"))
+saveRDS(reads_count, file = here::here("data", "intermediate", "reads_count.RDS"))
 
 reads_count <- rownames_to_column(reads_count,"transcript_id")
 write.csv(reads_count, 
-          file = here::here("data", "intermediate", "tbrucei_reads_count.csv"), 
+          file = here::here("data", "intermediate", "reads_count.csv"), 
           row.names = FALSE)
 
 # cleanup intermediate objects
-rm(y, z, i, DT, tbrucei_reads_count_raw)
+rm(y, z, i, DT, reads_count)
