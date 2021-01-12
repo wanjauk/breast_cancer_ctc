@@ -1,9 +1,9 @@
 ---
 title: "Breast Cancer Circulating Tumor Cells Analysis"
-author: "Kennedy Mwangi"
 date: "January 12, 2021"
 output:
   pdf_document: default
+  classoption: landscape
   html_document: default
 editor_options: 
   chunk_output_type: inline
@@ -35,7 +35,7 @@ This document contains the workflow used in the analysis of Breast Cancer Circul
 
 ```
 
-## Data acquisition
+## Metadata acquisition
 Data used in this study is obtained from European Nucleotide Archive under accession number SRP135702.
 
 First, metadata for the data is obtained from EBI as follows:
@@ -44,7 +44,7 @@ First, metadata for the data is obtained from EBI as follows:
 
 ```
 
-Prepare the samples metadata.
+## Prepare the samples metadata.
 ```{r, code = readLines(here::here("scripts","analysis","prepare-samples-metadata.R")), eval=FALSE}
 
 ```
@@ -55,9 +55,10 @@ samples.metadata
 ```
 
 
-Next, RNASeq data is downloaded from EBI database's FTP site. Some of the downstream tools require that FASTQ files that were downloaded in zipped form are unzipped.
+## Download the FASTQ data
+Next, RNASeq data is downloaded from EBI database's FTP site.
 
-```{bash, code = readLines(here::here("scripts","analysis","download-fastq-files.sh")), eval=FALSE}
+```{bash, code = readLines(here::here("scripts","analysis","sra_explorer_fastq_aspera_download.sh")), eval=FALSE}
 
 ```
 
@@ -69,14 +70,14 @@ Genomes are obtained from their respective databases before alignment.
 
 ```
 
-## Data quality assessment
+## Data quality assessment - FASTQC
 After downloading the RNASeq data, its quality is checked through the FASTQC tool whose output is a report in HTML format.
 
 ```{bash, code = readLines(here::here("scripts","analysis","generate-fastqc-reports.sh")), eval=FALSE}
 
 ```
 
-### Aligning the reads to the genome (Read Mapping)
+## Aligning the reads to the genome (Read Mapping)
 
 Alignment of the reads to the genome. The output is BAM files.
 
