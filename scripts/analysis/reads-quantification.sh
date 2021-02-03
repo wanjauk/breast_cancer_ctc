@@ -8,7 +8,7 @@ module load htseq/0.9
 
 # USAGE:
 # ./reads-quantification.sh \
-# /data/kwanjau_shared/scratch/reads-alignment-output \
+# /data/kwanjau_shared/scratch/bam-output \
 # ../../data/scratch/gencode.v25.annotation.gtf \
 # ../../data/intermediate/read_counts
 

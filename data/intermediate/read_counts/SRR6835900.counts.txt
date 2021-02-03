@@ -58035,8 +58035,8 @@ ENSG00000283696.1	0
 ENSG00000283697.1	0
 ENSG00000283698.1	0
 ENSG00000283699.1	0
-__no_feature	18600406
+__no_feature	20559453
 __ambiguous	0
-__too_low_aQual	1888446
-__not_aligned	26686831
-__alignment_not_unique	5727003
+__too_low_aQual	7744879
+__not_aligned	6532893
+__alignment_not_unique	3370031
